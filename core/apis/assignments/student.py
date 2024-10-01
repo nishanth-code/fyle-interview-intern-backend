@@ -24,10 +24,10 @@ def upsert_assignment(p, incoming_payload):
     """Create or Edit an assignment"""
     assignment = AssignmentSchema().load(incoming_payload)
     assignment.student_id = p.student_id
-    print(assignemnt)
+    print(assignment)
 
-    # upserted_assignment = Assignment.upsert(assignment)
-    # db.session.commit()
+    upserted_assignment = Assignment.upsert(assignment)
+    db.session.commit()
     upserted_assignment_dump = AssignmentSchema().dump(upserted_assignment)
     return APIResponse.respond(data=upserted_assignment_dump)
 

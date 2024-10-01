@@ -47,11 +47,12 @@ class Assignment(db.Model):
 
     @classmethod
     def upsert(cls, assignment_new: 'Assignment'):
-        if assignment_new.id is not None:
+        print("hello",assignment_new)
+        if assignment_new.id is not None and assignment_new.content is not None:
             assignment = Assignment.get_by_id(assignment_new.id)
             assertions.assert_found(assignment, 'No assignment with this id was found')
-            # assertions.assert_valid(assignment.state == AssignmentStateEnum.DRAFT,'only assignment in draft state can be edited')
-            assertions.assert_valid(assignment_new.content is not None , "empty assignment cannot be submited")
+            assertions.assert_valid(assignment.state == 'DRAFT','only assignment in draft state can be edited')
+            # assertions.assert_valid(assignment_new.content is not None , "empty assignment cannot be submited")
 
             # assignment.content = assignment_new.content
         else:
@@ -66,8 +67,8 @@ class Assignment(db.Model):
         assignment = Assignment.get_by_id(_id)
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(assignment.student_id == auth_principal.student_id, 'This assignment belongs to some other student')
-        assertions.assert_valid(assignment.content is not  None, 'assignment with empty content cannot be submitted')
-        assertions.assert_valid(assignment.state == AssignmentStateEnum.SUBMITTED,'only a draft assignment can be submitted')
+        assertions.assert_valid(assignment.content !=  None, 'assignment with empty content cannot be submitted')
+        assertions.assert_valid(assignment.state == 'SUBMITTED','only a draft assignment can be submitted')
             
 
 
@@ -84,14 +85,14 @@ class Assignment(db.Model):
         
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
-        assertions.assert_valid(assignment.state == AssignmentStateEnum.SUBMITTED, ' only submitted assignemnts can be graded')
+        assertions.assert_valid(assignment.state == 'SUBMITTED', ' only submitted assignemnts can be graded')
         assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id , "cross grading is not allowed")
     
         # if  assignment.state == AssignmentStateEnum.DRAFT:
         #     return abort(400,"")
             
         assignment.grade = grade
-        if assignment.state != AssignmentStateEnum.DRAFT:
+        if assignment.state != AssignmentStateEnum.DRAFT.value:
             assignment.grade = grade
             assignment.state = AssignmentStateEnum.GRADED
         db.session.flush()
@@ -104,14 +105,14 @@ class Assignment(db.Model):
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
         
-        assertions.assert_valid(assignment.state is not AssignmentStateEnum.DRAFT, ' only submitted assignemnts can be graded')
+        assertions.assert_valid(assignment.state != 'DRAFT', ' only submitted assignemnts can be graded')
         # assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id , "cross grading is not allowed")
     
         # if  assignment.state == AssignmentStateEnum.DRAFT:
         #     return abort(400,"")
             
         
-        if assignment.state != AssignmentStateEnum.DRAFT :
+        if assignment.state != 'DRAFT' :
             assignment.grade = grade
             assignment.state = AssignmentStateEnum.GRADED
         db.session.flush()

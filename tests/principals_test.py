@@ -1,4 +1,5 @@
 from core.models.assignments import AssignmentStateEnum, GradeEnum
+import json
 
 
 
@@ -9,10 +10,10 @@ def test_grade_assignment_draft_assignment(client, h_principal):
     """
     response = client.post(
         '/principal/assignments/grade',
-        json={
+        json=json.dumps({
             'id': 5,
-            'grade': GradeEnum.A.value
-        },
+            'grade': 'B'
+        }),
         headers=h_principal
     )
 

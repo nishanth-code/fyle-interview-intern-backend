@@ -112,12 +112,17 @@ class Assignment(db.Model):
         #assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
         # assertions.assert_valid(assignment.state != 'DRAFT', ' only submitted assignemnts can be graded')
         # assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id , "cross grading is not allowed")
-        
+        print("out",assignment)
         if assignment.state == 'SUBMITTED' or assignment.state == 'GRADED' :
+            print("in")
             assignment.grade = grade
             assignment.state = AssignmentStateEnum.GRADED
             db.session.flush()
             return assignment
+        
+        if assignment.state == 'DRAFT':
+            # return assignment
+            assertions.base_assert(400,"empty assignemnt cannot be submitted")
        
         
 

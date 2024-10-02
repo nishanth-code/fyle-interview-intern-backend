@@ -108,24 +108,18 @@ class Assignment(db.Model):
     @classmethod
     def mark_grade_principal(cls, _id, grade, auth_principal: AuthPrincipal):
         assignment = Assignment.get_by_id(_id)
-        
-        if assignment.state == 'DRAFT':
-            assertions.base_assert(400," only submitted assignemnts can be graded")
-        
-        assertions.assert_found(assignment, 'No assignment with this id was found')
+        #assertions.assert_found(assignment, 'No assignment with this id was found')
         #assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
-        
         # assertions.assert_valid(assignment.state != 'DRAFT', ' only submitted assignemnts can be graded')
         # assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id , "cross grading is not allowed")
-
-        if assignment.state == 'SUBMITTED' or assignment.state == 'GRADED' :
+        if assignment.state == 'DRAFT':
+            assertions.base_assert(400," only submitted assignemnts can be graded")
+        elif assignment.state == 'SUBMITTED' or assignment.state == 'GRADED' :
             assignment.grade = grade
             assignment.state = AssignmentStateEnum.GRADED
             db.session.flush()
             return assignment
-        # else:
-        #     assertions.base_assert(400," only submitted assignemnts can be graded")
-
+       
         
 
     @classmethod

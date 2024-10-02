@@ -2,8 +2,9 @@ from flask import Blueprint
 from core import db
 from core.apis import decorators
 from core.apis.responses import APIResponse
-from core.models.assignments import Assignment
+from core.models.assignments import Assignment,AssignmentStateEnum
 from core.models.teachers import Teacher
+from core.libs import assertions,exceptions
 
 from .schema import AssignmentSchema, AssignmentSubmitSchema,AssignmentGradeSchema
 from ..teachers.schema import TeacherSchema
@@ -22,14 +23,14 @@ def list_assignments(p):
 @decorators.authenticate_principal
 def grade_assignment(p,incoming_payload):
     grade_assignment_payload = AssignmentGradeSchema().load(incoming_payload)
-    marked_assignment = Assignment.mark_grade_principal(_id=grade_assignment_payload.id,grade=grade_assignment_payload.grade,auth_principal=p)
-    db.session.commit()
-    graded_assignment_dump = AssignmentSchema().dump(marked_assignment)
-    return APIResponse.respond(data=graded_assignment_dump)
+    assignment = Assignment.get_by_id(_id=grade_assignment_payload.id)
+    if assignment.state == AssignmentStateEnum.DRAFT:
+        raise exceptions.FyleError(400,"cannot grade assignments in draft state")
+    else:
+        marked_assignment = Assignment.mark_grade_principal(_id=grade_assignment_payload.id,grade=grade_assignment_payload.grade,auth_principal=p)
+        db.session.commit()
+        graded_assignment_dump = AssignmentSchema().dump(marked_assignment)
+        return APIResponse.respond(data=graded_assignment_dump)
 
-# @principal_assignment_resources.route('/teachers',methods=['GET'],strict_slashes=False)
-# @decorators.authenticate_principal
-# def get_teachers(p):
-#     teachers = Teacher.get_teachers()
-#     teachers_dump = TeacherSchema().dump(teachers,many=True)
-#     return APIResponse.respond(data=teachers_dump)
+
+

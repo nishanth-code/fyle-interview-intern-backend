@@ -1,2 +1,12 @@
 -- Write query to find the number of grade A's given by the teacher who has graded the most assignments
-SELECT COUNT(*) FROM assignments WHERE GRADE='A' AND TEACHER_ID = (SELECT MAX(TEACHER_ID) FROM (SELECT TEACHER_ID FROM ASSIGNMENTS GROUP BY TEACHER_ID))
+SELECT COUNT(*) AS grade_a
+FROM assignments AS a
+WHERE a.grade = 'A'
+AND a.teacher_id = (
+    SELECT a.teacher_id
+    FROM assignments AS a
+    WHERE a.state = 'GRADED'
+    GROUP BY a.teacher_id
+    ORDER BY COUNT(*) DESC
+    LIMIT 1
+);

@@ -1,0 +1,19 @@
+version: "3.12"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fyle:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+      - GUNICORN_PORT=7755
+    command: ["gunicorn", "-c", "gunicorn_config.py", "core.server:app"]
+
+    # for windows
+    # command: ["waitress-serve","--port=8000","core.server:app"]
